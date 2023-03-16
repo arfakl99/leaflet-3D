@@ -1,0 +1,37 @@
+<link href="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.css" rel="stylesheet">
+<script src="https://cdn.osmbuildings.org/4.1.1/OSMBuildings.js"></script>
+
+<div id="map"></div>
+
+<script>
+var map = new OSMBuildings({
+	container: 'map',
+	position: { latitude: 33.6844, longitude: 73.0479 }, // Islamabad coordinates
+	zoom: 16,
+	// minZoom: 5,
+	maxZoom: 20,
+	height: 200, // Increase building height
+	attribution: '© Data <a href="https://openstreetmap.org/copyright/">OpenStreetMap</a> © Map <a href="https://mapbox.com/">Mapbox</a> © 3D <a href="https://osmbuildings.org/copyright/">OSM Buildings</a>'
+});
+
+map.addMapTiles('https://tile.openstreetmap.org/{z}/{x}/{y}.png');
+map.addGeoJSONTiles('https://{s}.data.osmbuildings.org/0.2/phz0s0pk/tile/{z}/{x}/{y}.json'); // Islamabad GeoJSONTiles URL
+
+// Add external JSON file
+var url = '/data/data.json';
+fetch(url)
+	.then(response => response.json())
+	.then(data => {
+		// Increase height of polygons
+		data.features.forEach(feature => {
+			if (feature.geometry.type === 'Polygon') {
+				feature.properties.height = 50; // Set the height to 50 meters
+			}
+			else if (feature.geometry.type === 'MultiPolygon') {
+				feature.properties.height = 50; // Set the height to 50 meters
+			}
+		});
+
+		map.addGeoJSON(data, { height: 50 }); // Use a height of 50 meters for all features
+	});
+</script>
